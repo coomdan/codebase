@@ -89,4 +89,5 @@ csvcontent = read_csv(dbxfile,localpath)
 for row in csvcontent:
     print(row['date'], int(row['value'].rstrip('.0')))
 print('Now we would upload each entry to graphite, right?')
+print('YEP!!! And start implementing the SolarEdge stuff!!')
 cleanup(dbxfile,localpath)
