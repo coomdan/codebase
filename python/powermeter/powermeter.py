@@ -54,12 +54,6 @@ def read_csv(file,path):
             csv_list.append(row)
             eval_csvrow(row)
     return csv_list
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-
-def write_graphite():
-    print('GF')
-=======
     
 def eval_csvrow(csvrow):
     dt = csvrow['date'] + csvrow['time']
@@ -73,26 +67,7 @@ def write_graphite(timestamp,metricvalue,metricname):
     graphyte.init(graphite_host, prefix=graphite_pre)
     graphyte.send(metricname, int(metricvalue), timestamp=timestamp)
     #print(metricname, int(metricvalue), timestamp)
->>>>>>> Stashed changes
-=======
     
-def eval_csvrow(csvrow):
-    dt = csvrow['date'] + csvrow['time']
-    #print(dt)
-    time = datetime.datetime.strptime(dt, '%Y-%m-%d%H:%M:%S').timestamp()
-    #print(time)
-    #print("Call upload2graphite with " + str(time), csvrow['value'])
-    value = csvrow['value'].rstrip('.0')
-    write_graphite(time,value)
-
-def write_graphite(timestamp,metric):
-    #print(type(timestamp), type(metric))
-    #print('GF')
-    graphyte.init(graphite_host, prefix=graphite_pre)
-    graphyte.send('ht', int(metric), timestamp=timestamp)
-    print('ht', int(metric), timestamp)
->>>>>>> 3c567b17cf59e7ce5a0659181baeb1124fa3a7c1
-
 def cleanup(file,lpath):
     print(glob.glob(os.path.join(lpath,file)))
     os.remove(os.path.join(lpath,file))
@@ -106,19 +81,9 @@ localpath = '/tmp'
 remotepath = 'VerbrauchsKosten/csv'
 graphite_host = 'raspy.fritz.box'
 graphite_port = 2003
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-graphite_pre = 'solar.pv'
-=======
-graphite_pre = 'test.pv'
->>>>>>> 3c567b17cf59e7ce5a0659181baeb1124fa3a7c1
-apikey = 'SOLAREDGE_API_KEY'
-site_id = 'XXXXXX'
-=======
 graphite_pre = 'test.pv'
 apikey = 'OOJ241QVF0YZAOC3RI2ID0GK9N2GCABW'
 site_id = '1156342'
->>>>>>> Stashed changes
 time_pattern = '%Y-%m-%d %H:%M:%S'
 
 parser = argparse.ArgumentParser(description='Reads output from SolarEdge portal and ECAS export (in Dropbox) and submits to Graphite')
@@ -151,13 +116,7 @@ csvcontent = read_csv(dbxfile,localpath)
 #for row in csvcontent:
 #    print(row['date'], int(row['value'].rstrip('.0')))
 print('Now we would upload each entry to graphite, right?')
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
 print('YEP!!! And start implementing the SolarEdge stuff!!')
 get_SE_values()
->>>>>>> Stashed changes
-=======
 print('YEP!!! And start implementing the SolarEdge stuff!!')
->>>>>>> 3c567b17cf59e7ce5a0659181baeb1124fa3a7c1
 cleanup(dbxfile,localpath)
