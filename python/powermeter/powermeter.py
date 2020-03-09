@@ -14,6 +14,7 @@ import dropbox
 import graphyte
 import json
 import time
+import datetime
 import argparse
 import sys
 import os
@@ -36,10 +37,24 @@ def read_csv(file,path):
         reader = csv.DictReader(csvfile,['date','time','value'])
         for row in reader:
             csv_list.append(row)
+            eval_csvrow(row)
     return csv_list
+    
+def eval_csvrow(csvrow):
+    dt = csvrow['date'] + csvrow['time']
+    #print(dt)
+    time = datetime.datetime.strptime(dt, '%Y-%m-%d%H:%M:%S').timestamp()
+    #print(time)
+    #print("Call upload2graphite with " + str(time), csvrow['value'])
+    value = csvrow['value'].rstrip('.0')
+    write_graphite(time,value)
 
-def write_graphite():
-    print('GF')
+def write_graphite(timestamp,metric):
+    #print(type(timestamp), type(metric))
+    #print('GF')
+    graphyte.init(graphite_host, prefix=graphite_pre)
+    graphyte.send('ht', int(metric), timestamp=timestamp)
+    print('ht', int(metric), timestamp)
 
 def cleanup(file,lpath):
     print(glob.glob(os.path.join(lpath,file)))
@@ -52,9 +67,9 @@ dbxtoken = 'FQZNhbPIQmsAAAAAAAAMhMv5YG74Gz0Gd5AIp1sF0I2u1qEjtkOepaMziWyBfSVl'
 dbxfile = 'VB Strom HT.csv'
 localpath = '/tmp'
 remotepath = 'VerbrauchsKosten/csv'
-graphite_host = 'graphite'
+graphite_host = 'raspy.fritz.box'
 graphite_port = 2003
-graphite_pre = 'solar.pv'
+graphite_pre = 'test.pv'
 apikey = 'SOLAREDGE_API_KEY'
 site_id = 'XXXXXX'
 time_pattern = '%Y-%m-%d %H:%M:%S'
@@ -86,8 +101,8 @@ if args.site_id:
     
 download_DBX_file(dbxtoken, dbxfile, remotepath, localpath)
 csvcontent = read_csv(dbxfile,localpath)
-for row in csvcontent:
-    print(row['date'], int(row['value'].rstrip('.0')))
+#for row in csvcontent:
+#    print(row['date'], int(row['value'].rstrip('.0')))
 print('Now we would upload each entry to graphite, right?')
 print('YEP!!! And start implementing the SolarEdge stuff!!')
 cleanup(dbxfile,localpath)
