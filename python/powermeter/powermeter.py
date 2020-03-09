@@ -18,6 +18,7 @@ import datetime
 import argparse
 import sys
 import os
+import sqlite3
 import glob
 
 def download_DBX_file(acToken,file,rpath,lpath):
@@ -46,20 +47,41 @@ def get_SE_values():
     print(energy, power)
     write_graphite(timestamp,energy,'Produktion')
 
+def read_and_write_dbmetrics(path,file):
+    conn = sqlite3.connect(os.path.join(path,file))
+    c = conn.cursor()
+    sqoutput = c.execute('select _id, name from meter')
+    for s in sqoutput:
+        meterid = s[0]
+        metername = s[1].replace(" ","_")
+        print(meterid, metername)
+        c1 = conn.cursor()
+        for m in c1.execute('SELECT date,value from reading where meterid = ' + str(meterid)):
+            #print(m[0],m[1])
+            time = datetime.datetime.strptime(m[0], '%Y-%m-%dT%H:%M:%S').timestamp()
+            #print(time,type(time))
+            #mvalue = m[1].rstrip('.0')
+            #mvalue = 0 if mvalue == '' else mvalue
+            write_graphite(time,m[1],metername)
+    conn.close()
+
 def read_csv(file,path):
     csv_list = []
     with open(os.path.join(path,file)) as csvfile:
         reader = csv.DictReader(csvfile,['date','time','value'])
         for row in reader:
             csv_list.append(row)
-            eval_csvrow(row)
+            eval_csvrow(row,file.rstrip('.csv').replace(" ","_"))
     return csv_list
     
-def eval_csvrow(csvrow):
+def eval_csvrow(csvrow,metername):
     dt = csvrow['date'] + csvrow['time']
     time = datetime.datetime.strptime(dt, '%Y-%m-%d%H:%M:%S').timestamp()
+    print(csvrow['value'])
     value = csvrow['value'].rstrip('.0')
-    write_graphite(time,value,'HT')
+    value = '0' if value == '' else value
+    print(time,value,metername)
+    write_graphite(time,value,metername)
 
 def write_graphite(timestamp,metricvalue,metricname):
     #print(type(timestamp), type(metric))
@@ -76,9 +98,9 @@ def cleanup(file,lpath):
 
 # defaults; set these or use the command line options to override
 dbxtoken = 'FQZNhbPIQmsAAAAAAAAMhMv5YG74Gz0Gd5AIp1sF0I2u1qEjtkOepaMziWyBfSVl'
-dbxfile = 'VB Strom HT.csv'
+dbxfile = '2020-03-09-ecas-export.db'
 localpath = '/tmp'
-remotepath = 'VerbrauchsKosten/csv'
+remotepath = 'VerbrauchsKosten/ECAS'
 graphite_host = 'raspy.fritz.box'
 graphite_port = 2003
 graphite_pre = 'test.pv'
@@ -112,11 +134,11 @@ if args.site_id:
     site_id = args.site_id
     
 download_DBX_file(dbxtoken, dbxfile, remotepath, localpath)
-csvcontent = read_csv(dbxfile,localpath)
+read_and_write_dbmetrics(localpath,dbxfile)
+    #csvcontent = read_csv(dbxfile,localpath)
 #for row in csvcontent:
 #    print(row['date'], int(row['value'].rstrip('.0')))
 print('Now we would upload each entry to graphite, right?')
-print('YEP!!! And start implementing the SolarEdge stuff!!')
 get_SE_values()
 print('YEP!!! And start implementing the SolarEdge stuff!!')
 cleanup(dbxfile,localpath)
