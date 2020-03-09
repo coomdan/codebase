@@ -29,6 +29,21 @@ def download_DBX_file(acToken,file,rpath,lpath):
 
 def get_SE_values():
     print('SE')
+    timestamp = int(round(time.time()))
+    energy = float('nan')
+    power = 0
+    s = solaredge.Solaredge(apikey)
+    try: 
+        r = s.get_overview(site_id)
+    except:
+        print("Unexpected error accessing SolarEdge portal:", sys.exc_info()[0])
+        raise
+    o = r["overview"]
+    timestamp = int(time.mktime(time.strptime(o["lastUpdateTime"], time_pattern)))
+    energy = o["lifeTimeData"]["energy"]
+    power = o["currentPower"]["power"]
+    print(energy, power)
+    write_graphite(timestamp,energy,'Produktion')
 
 def read_csv(file,path):
     csv_list = []
@@ -37,9 +52,25 @@ def read_csv(file,path):
         for row in reader:
             csv_list.append(row)
     return csv_list
+<<<<<<< Updated upstream
 
 def write_graphite():
     print('GF')
+=======
+    
+def eval_csvrow(csvrow):
+    dt = csvrow['date'] + csvrow['time']
+    time = datetime.datetime.strptime(dt, '%Y-%m-%d%H:%M:%S').timestamp()
+    value = csvrow['value'].rstrip('.0')
+    write_graphite(time,value,'HT')
+
+def write_graphite(timestamp,metricvalue,metricname):
+    #print(type(timestamp), type(metric))
+    #print('GF')
+    graphyte.init(graphite_host, prefix=graphite_pre)
+    graphyte.send(metricname, int(metricvalue), timestamp=timestamp)
+    #print(metricname, int(metricvalue), timestamp)
+>>>>>>> Stashed changes
 
 def cleanup(file,lpath):
     print(glob.glob(os.path.join(lpath,file)))
@@ -54,9 +85,15 @@ localpath = '/tmp'
 remotepath = 'VerbrauchsKosten/csv'
 graphite_host = 'graphite'
 graphite_port = 2003
+<<<<<<< Updated upstream
 graphite_pre = 'solar.pv'
 apikey = 'SOLAREDGE_API_KEY'
 site_id = 'XXXXXX'
+=======
+graphite_pre = 'test.pv'
+apikey = 'OOJ241QVF0YZAOC3RI2ID0GK9N2GCABW'
+site_id = '1156342'
+>>>>>>> Stashed changes
 time_pattern = '%Y-%m-%d %H:%M:%S'
 
 parser = argparse.ArgumentParser(description='Reads output from SolarEdge portal and ECAS export (in Dropbox) and submits to Graphite')
@@ -89,4 +126,9 @@ csvcontent = read_csv(dbxfile,localpath)
 for row in csvcontent:
     print(row['date'], int(row['value'].rstrip('.0')))
 print('Now we would upload each entry to graphite, right?')
+<<<<<<< Updated upstream
+=======
+print('YEP!!! And start implementing the SolarEdge stuff!!')
+get_SE_values()
+>>>>>>> Stashed changes
 cleanup(dbxfile,localpath)
