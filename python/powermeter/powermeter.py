@@ -14,6 +14,7 @@ import dropbox
 import graphyte
 import json
 import time
+import datetime
 import argparse
 import sys
 import os
@@ -51,7 +52,9 @@ def read_csv(file,path):
         reader = csv.DictReader(csvfile,['date','time','value'])
         for row in reader:
             csv_list.append(row)
+            eval_csvrow(row)
     return csv_list
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 
 def write_graphite():
@@ -71,6 +74,24 @@ def write_graphite(timestamp,metricvalue,metricname):
     graphyte.send(metricname, int(metricvalue), timestamp=timestamp)
     #print(metricname, int(metricvalue), timestamp)
 >>>>>>> Stashed changes
+=======
+    
+def eval_csvrow(csvrow):
+    dt = csvrow['date'] + csvrow['time']
+    #print(dt)
+    time = datetime.datetime.strptime(dt, '%Y-%m-%d%H:%M:%S').timestamp()
+    #print(time)
+    #print("Call upload2graphite with " + str(time), csvrow['value'])
+    value = csvrow['value'].rstrip('.0')
+    write_graphite(time,value)
+
+def write_graphite(timestamp,metric):
+    #print(type(timestamp), type(metric))
+    #print('GF')
+    graphyte.init(graphite_host, prefix=graphite_pre)
+    graphyte.send('ht', int(metric), timestamp=timestamp)
+    print('ht', int(metric), timestamp)
+>>>>>>> 3c567b17cf59e7ce5a0659181baeb1124fa3a7c1
 
 def cleanup(file,lpath):
     print(glob.glob(os.path.join(lpath,file)))
@@ -83,10 +104,14 @@ dbxtoken = 'FQZNhbPIQmsAAAAAAAAMhMv5YG74Gz0Gd5AIp1sF0I2u1qEjtkOepaMziWyBfSVl'
 dbxfile = 'VB Strom HT.csv'
 localpath = '/tmp'
 remotepath = 'VerbrauchsKosten/csv'
-graphite_host = 'graphite'
+graphite_host = 'raspy.fritz.box'
 graphite_port = 2003
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 graphite_pre = 'solar.pv'
+=======
+graphite_pre = 'test.pv'
+>>>>>>> 3c567b17cf59e7ce5a0659181baeb1124fa3a7c1
 apikey = 'SOLAREDGE_API_KEY'
 site_id = 'XXXXXX'
 =======
@@ -123,12 +148,16 @@ if args.site_id:
     
 download_DBX_file(dbxtoken, dbxfile, remotepath, localpath)
 csvcontent = read_csv(dbxfile,localpath)
-for row in csvcontent:
-    print(row['date'], int(row['value'].rstrip('.0')))
+#for row in csvcontent:
+#    print(row['date'], int(row['value'].rstrip('.0')))
 print('Now we would upload each entry to graphite, right?')
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 =======
 print('YEP!!! And start implementing the SolarEdge stuff!!')
 get_SE_values()
 >>>>>>> Stashed changes
+=======
+print('YEP!!! And start implementing the SolarEdge stuff!!')
+>>>>>>> 3c567b17cf59e7ce5a0659181baeb1124fa3a7c1
 cleanup(dbxfile,localpath)
