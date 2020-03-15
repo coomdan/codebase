@@ -20,6 +20,8 @@ import sys
 import os
 import sqlite3
 import glob
+import urllib.request
+import xml.etree.ElementTree as ET
 
 def download_DBX_file(acToken,file,rpath,lpath):
     l = os.path.join(lpath,file)
@@ -47,6 +49,21 @@ def get_SE_values():
     today = o['lastDayData']['energy']
     print("Current: {} W, Today: {} Wh, Lifetime: {} Wh".format(power, today, energy))
     write_graphite(timestamp,energy,'Produktion')
+    write_graphite(timestamp,power,'Power')
+    write_graphite(timestamp,today,'Today')
+
+def get_varta_status():
+    with urllib.request.urlopen('http://192.168.1.51/cgi/ems_data.xml') as response:
+        xml = response.read()
+    root = ET.fromstring(xml)
+
+    timestamp = root.attrib['Timestamp']
+    state = root.find("./inverter[@id='M460879']/var[@name='State']")
+    power = root.find("./inverter[@id='M460879']/var[@name='P']")
+    charge = root.find("./inverter[@id='M460879']/var[@name='SOC']")
+    st = state.attrib['value']
+    print('Timestamp: {}, Status:  {}, Power: {}W, Ladung: {}%'.format(timestamp, state.attrib['value'],power.attrib['value'],charge.attrib['value'].rstrip('0')))
+    write_graphite(int(timestamp),charge.attrib['value'].rstrip('0'),'Ladung')
 
 def read_and_write_dbmetrics(path,file):
     conn = sqlite3.connect(os.path.join(path,file))
@@ -139,7 +156,9 @@ download_DBX_file(dbxtoken, dbxfile, remotepath, localpath)
     #csvcontent = read_csv(dbxfile,localpath)
 #for row in csvcontent:
 #    print(row['date'], int(row['value'].rstrip('.0')))
-print('Now we would upload each entry to graphite, right?')
+print('SolarEdge....')
 get_SE_values()
-print('YEP!!! And start implementing the SolarEdge stuff!!')
+print('VARTA...')
+get_varta_status()
+print('Cleanup...')
 cleanup(dbxfile,localpath)
