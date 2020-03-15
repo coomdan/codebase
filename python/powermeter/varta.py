@@ -15,13 +15,13 @@ with urllib.request.urlopen('http://192.168.1.51/cgi/ems_data.xml') as response:
 
 
 root = ET.fromstring(xml)
-print(root.tag,root.attrib)
+#print(root.tag,root.attrib)
 timestamp = root.attrib['Timestamp']
 state = root.find("./inverter[@id='M460879']/var[@name='State']")
 power = root.find("./inverter[@id='M460879']/var[@name='P']")
 charge = root.find("./inverter[@id='M460879']/var[@name='SOC']")
 
 st = state.attrib['value']
-#print(st)
-
-print(timestamp, state.attrib['value'],power.attrib['value'],charge.attrib['value'])
+#print(type(state.attrib['value']),type(timestamp))
+#print(timestamp, state.attrib['value'],power.attrib['value'],charge.attrib['value'])
+print('Timestamp: {}, Status:  {}, Power: {}W, Ladung: {}%'.format(timestamp, state.attrib['value'],power.attrib['value'],charge.attrib['value'].rstrip('0')))
