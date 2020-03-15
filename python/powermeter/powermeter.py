@@ -44,7 +44,8 @@ def get_SE_values():
     timestamp = int(time.mktime(time.strptime(o["lastUpdateTime"], time_pattern)))
     energy = o["lifeTimeData"]["energy"]
     power = o["currentPower"]["power"]
-    print(energy, power)
+    today = o['lastDayData']['energy']
+    print("Current: {} W, Today: {} Wh, Lifetime: {} Wh".format(power, today, energy))
     write_graphite(timestamp,energy,'Produktion')
 
 def read_and_write_dbmetrics(path,file):
@@ -98,7 +99,7 @@ def cleanup(file,lpath):
 
 # defaults; set these or use the command line options to override
 dbxtoken = 'FQZNhbPIQmsAAAAAAAAMhMv5YG74Gz0Gd5AIp1sF0I2u1qEjtkOepaMziWyBfSVl'
-dbxfile = '2020-03-09-ecas-export.db'
+dbxfile = '2020-03-13-ecas-export.db'
 localpath = '/tmp'
 remotepath = 'VerbrauchsKosten/ECAS'
 graphite_host = 'raspy.fritz.box'
@@ -134,7 +135,7 @@ if args.site_id:
     site_id = args.site_id
     
 download_DBX_file(dbxtoken, dbxfile, remotepath, localpath)
-read_and_write_dbmetrics(localpath,dbxfile)
+#read_and_write_dbmetrics(localpath,dbxfile)
     #csvcontent = read_csv(dbxfile,localpath)
 #for row in csvcontent:
 #    print(row['date'], int(row['value'].rstrip('.0')))
