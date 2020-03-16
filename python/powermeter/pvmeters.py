@@ -55,6 +55,22 @@ def download_DBX_file(token,file,rpath,lpath):
     dbx = dropbox.Dropbox(token)
     dbx.files_download_to_file(l,r)
     #print(glob.glob(l))
+
+def se_hourly(apikey,site_id,ghost,prefix='pv.solaredge.production'):
+    timestamp = int(round(time.time()))
+    s = solaredge.Solaredge(apikey)
+    try: 
+        r = s.get_overview(site_id)
+    except:
+        print("Unexpected error accessing SolarEdge portal:", sys.exc_info()[0])
+        raise
+    o = r["overview"]
+    timestamp = int(time.mktime(time.strptime(o["lastUpdateTime"], time_pattern)))
+    today = o['lastDayData']['energy']
+    write_graphite(prefix,timestamp,today,'today',ghost)
+    
+def de_daily():
+    print('de')
     
 def solaredgemetrics():
     print('SE')
@@ -138,9 +154,15 @@ args = parser.parse_args()
 
 ## set vars
 graphite_host = args.graphite_host
+time_pattern = '%Y-%m-%d %H:%M:%S'
+
 ## main
 if args.mode == 1:
     vartametrics(args.vartaurl,graphite_host)
+elif args.mode == 2:
+    se_hourly(args.apikey,args.site_id,graphite_host)
+elif args.mode == 3:
+    print('daily')
 else:
     print('Invalid mode, exiting...')
     sys.exit(2)
