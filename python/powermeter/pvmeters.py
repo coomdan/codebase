@@ -106,6 +106,7 @@ parser.add_argument('-l', '--localpath',
                     help='Local Path to save DBX file')
 parser.add_argument('-m', '--mode',
                     dest='mode',
+                    type=int,
                     default=1,
                     help='Program mode: 1 - 15 min values, 2 - hourly, 3 - daily')                    
 parser.add_argument('-r', '--remotepath',
