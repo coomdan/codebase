@@ -43,7 +43,7 @@ def vartametrics(url,ghost,prefix='pv.varta'):
     state = root.find("./inverter[@id='M460879']/var[@name='State']")
     power = root.find("./inverter[@id='M460879']/var[@name='P']")
     charge = root.find("./inverter[@id='M460879']/var[@name='SOC']")
-    print('Timestamp: {}, Status:  {}, Power: {}W, Ladung: {}%'.format(timestamp, state.attrib['value'],power.attrib['value'],charge.attrib['value'][:-1]))
+    #print('Timestamp: {}, Status:  {}, Power: {}W, Ladung: {}%'.format(timestamp, state.attrib['value'],power.attrib['value'],charge.attrib['value'][:-1]))
     #write_graphite(prefix,int(timestamp),charge.attrib['value'].rstrip('0'),'Ladung',ghost)
     write_graphite(prefix,int(timestamp),state.attrib['value'],state.attrib['name'],ghost)
     write_graphite(prefix,int(timestamp),power.attrib['value'],power.attrib['name'],ghost)
@@ -70,7 +70,7 @@ def se_hourly(apikey,site_id,ghost,prefix='pv.solaredge.production'):
     today = o['lastDayData']['energy']
     write_graphite(prefix,timestamp,today,'today',ghost)
     
-def de_daily():
+def se_daily():
     print('de')
     
 def solaredgemetrics():
@@ -89,7 +89,7 @@ def solaredgemetrics():
     energy = o["lifeTimeData"]["energy"]
     power = o["currentPower"]["power"]
     today = o['lastDayData']['energy']
-    print("Current: {} W, Today: {} Wh, Lifetime: {} Wh".format(power, today, energy))
+    #print("Current: {} W, Today: {} Wh, Lifetime: {} Wh".format(power, today, energy))
     write_graphite(timestamp,energy,'Produktion')
     write_graphite(timestamp,power,'Power')
     write_graphite(timestamp,today,'Today')
@@ -97,7 +97,7 @@ def solaredgemetrics():
 def write_graphite(prefix,timestamp,metricvalue,metricname,host): ## Add metric path / prefix
     ## Add Exception Handler
     graphyte.init(host, prefix=prefix)
-    print(metricname, int(metricvalue))
+    #print(metricname, int(metricvalue))
     graphyte.send(metricname, int(metricvalue), timestamp=timestamp)
 
 """
