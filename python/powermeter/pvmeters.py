@@ -43,10 +43,11 @@ def vartametrics(url,ghost,prefix='pv.varta'):
     state = root.find("./inverter[@id='M460879']/var[@name='State']")
     power = root.find("./inverter[@id='M460879']/var[@name='P']")
     charge = root.find("./inverter[@id='M460879']/var[@name='SOC']")
-    print('Timestamp: {}, Status:  {}, Power: {}W, Ladung: {}%'.format(timestamp, state.attrib['value'],power.attrib['value'],charge.attrib['value'].rstrip('0')))
+    print('Timestamp: {}, Status:  {}, Power: {}W, Ladung: {}%'.format(timestamp, state.attrib['value'],power.attrib['value'],charge.attrib['value'][:-1]))
     #write_graphite(prefix,int(timestamp),charge.attrib['value'].rstrip('0'),'Ladung',ghost)
-    for i in [state,power,charge]:
-        write_graphite(prefix,int(timestamp),i.attrib['value'].rstrip('0'),i.attrib['name'],ghost)
+    write_graphite(prefix,int(timestamp),state.attrib['value'],state.attrib['name'],ghost)
+    write_graphite(prefix,int(timestamp),power.attrib['value'],power.attrib['name'],ghost)
+    write_graphite(prefix,int(timestamp),charge.attrib['value'][:-1],charge.attrib['name'],ghost)
         
 def download_DBX_file(token,file,rpath,lpath):
     l = os.path.join(lpath,file)
@@ -96,6 +97,7 @@ def solaredgemetrics():
 def write_graphite(prefix,timestamp,metricvalue,metricname,host): ## Add metric path / prefix
     ## Add Exception Handler
     graphyte.init(host, prefix=prefix)
+    print(metricname, int(metricvalue))
     graphyte.send(metricname, int(metricvalue), timestamp=timestamp)
 
 """
