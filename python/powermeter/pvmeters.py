@@ -174,6 +174,8 @@ time_pattern = '%Y-%m-%d %H:%M:%S'
 ## main
 if args.mode == 1:
     vartametrics(args.vartaurl,graphite_host)
+    se_hourly(args.apikey,args.site_id,graphite_host)
+    se_daily(args.apikey,args.site_id,graphite_host)
 elif args.mode == 2:
     se_hourly(args.apikey,args.site_id,graphite_host)
     se_daily(args.apikey,args.site_id,graphite_host)
