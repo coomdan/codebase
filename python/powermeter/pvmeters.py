@@ -59,6 +59,7 @@ def download_DBX_file(token,file,rpath,lpath):
 
 def se_hourly(apikey,site_id,ghost,prefix='pv.solaredge.production'):
     timestamp = int(round(time.time()))
+    today = 0
     s = solaredge.Solaredge(apikey)
     try: 
         r = s.get_overview(site_id)
@@ -70,8 +71,20 @@ def se_hourly(apikey,site_id,ghost,prefix='pv.solaredge.production'):
     today = o['lastDayData']['energy']
     write_graphite(prefix,timestamp,today,'today',ghost)
     
-def se_daily():
-    print('de')
+def se_daily(apikey,site_id,ghost,prefix='pv.solaredge.production'):
+    timestamp = int(round(time.time()))
+    energy = float('nan')
+    s = solaredge.Solaredge(apikey)
+    try: 
+        r = s.get_overview(site_id)
+    except:
+        print("Unexpected error accessing SolarEdge portal:", sys.exc_info()[0])
+        raise
+    o = r["overview"]
+    timestamp = int(time.mktime(time.strptime(o["lastUpdateTime"], time_pattern)))
+    energy = o["lifeTimeData"]["energy"]
+    #print("Lifetime: {} Wh".format(energy))
+    write_graphite(prefix,timestamp,energy,'total',ghost)
     
 def solaredgemetrics():
     print('SE')
@@ -163,8 +176,9 @@ if args.mode == 1:
     vartametrics(args.vartaurl,graphite_host)
 elif args.mode == 2:
     se_hourly(args.apikey,args.site_id,graphite_host)
+    se_daily(args.apikey,args.site_id,graphite_host)
 elif args.mode == 3:
-    print('daily')
+    se_daily(args.apikey,args.site_id,graphite_host)
 else:
     print('Invalid mode, exiting...')
     sys.exit(2)
