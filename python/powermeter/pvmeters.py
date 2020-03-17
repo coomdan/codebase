@@ -43,11 +43,16 @@ def vartametrics(url,ghost,prefix='pv.varta'):
     state = root.find("./inverter[@id='M460879']/var[@name='State']")
     power = root.find("./inverter[@id='M460879']/var[@name='P']")
     charge = root.find("./inverter[@id='M460879']/var[@name='SOC']")
-    #print('Timestamp: {}, Status:  {}, Power: {}W, Ladung: {}%'.format(timestamp, state.attrib['value'],power.attrib['value'],charge.attrib['value'][:-1]))
+    if charge.attrib['value'] == '0':
+        c = 0
+    else:
+        c = charge.attrib['value'][:-1]
+        
+    print('Timestamp: {}, Status:  {}, Power: {}W, Ladung: {}%'.format(timestamp, state.attrib['value'],power.attrib['value'],c))
     #write_graphite(prefix,int(timestamp),charge.attrib['value'].rstrip('0'),'Ladung',ghost)
     write_graphite(prefix,int(timestamp),state.attrib['value'],state.attrib['name'],ghost)
     write_graphite(prefix,int(timestamp),power.attrib['value'],power.attrib['name'],ghost)
-    write_graphite(prefix,int(timestamp),charge.attrib['value'][:-1],charge.attrib['name'],ghost)
+    write_graphite(prefix,int(timestamp),c,charge.attrib['name'],ghost)
         
 def download_DBX_file(token,file,rpath,lpath):
     l = os.path.join(lpath,file)
