@@ -48,7 +48,7 @@ def vartametrics(url,ghost,prefix='pv.varta'):
     else:
         c = charge.attrib['value'][:-1]
         
-    print('Timestamp: {}, Status:  {}, Power: {}W, Ladung: {}%'.format(timestamp, state.attrib['value'],power.attrib['value'],c))
+    #print('Timestamp: {}, Status:  {}, Power: {}W, Ladung: {}%'.format(timestamp, state.attrib['value'],power.attrib['value'],c))
     #write_graphite(prefix,int(timestamp),charge.attrib['value'].rstrip('0'),'Ladung',ghost)
     write_graphite(prefix,int(timestamp),state.attrib['value'],state.attrib['name'],ghost)
     write_graphite(prefix,int(timestamp),power.attrib['value'],power.attrib['name'],ghost)
@@ -88,7 +88,7 @@ def se_daily(apikey,site_id,ghost,prefix='pv.solaredge.production'):
     o = r["overview"]
     timestamp = int(time.mktime(time.strptime(o["lastUpdateTime"], time_pattern)))
     energy = o["lifeTimeData"]["energy"]
-    #print("Lifetime: {} Wh".format(energy))
+        #print("Lifetime: {} Wh".format(energy))
     write_graphite(prefix,timestamp,energy,'total',ghost)
     
 def solaredgemetrics():
