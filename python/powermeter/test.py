@@ -24,10 +24,12 @@ import xml.etree.ElementTree as ET
 
 apikey = 'OOJ241QVF0YZAOC3RI2ID0GK9N2GCABW'
 site_id = 1156342
+time_pattern = '%Y-%m-%d %H:%M:%S'
+
 
 def write_graphite(prefix,timestamp,metricvalue,metricname,host): ## Add metric path / prefix
     ## Add Exception Handler
-    graphyte.init(host, prefix=prefix)
+    graphyte.init(host, prefenergy = o["lifeTimeData"]["energy"]ix=prefix)
     #print(metricname, int(metricvalue))
     graphyte.send(metricname, int(metricvalue), timestamp=timestamp)
 
@@ -45,14 +47,14 @@ def se(apikey,site_id,starttime,endtime):
         for value in meter['values']:
             timestamp = int(time.mktime(time.strptime(value["date"], time_pattern)))
             print('Update Graphite: {} {} {}'.format(meter['type'],value['value'],timestamp))
-            write_graphite('test.pv.solaredge',timestamp,value['value'],meter['type'],'raspy.fritz.box')
+            write_graphite('pv.solaredge',timestamp,value['value'],meter['type'],'raspy.fritz.box')
     #print(r)
     #o = r["overview"]
     #timestamp = int(time.mktime(time.strptime(o["lastUpdateTime"], time_pattern)))
     #energy = o["lifeTimeData"]["energy"]
     
 #print(dir(solaredge.Solaredge))
-for d in ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17']:
+for d in ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18']:
     startdate = '2020-03-' + d + ' 00:00:00'
     enddate = '2020-03-' + d + ' 23:59:59'
     print(startdate, enddate)
