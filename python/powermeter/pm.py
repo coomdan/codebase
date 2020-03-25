@@ -35,6 +35,7 @@ def cleanup(file,lpath):
     
 def current_dbx_file_exists(acToken,file,path):
     dbx = dropbox.Dropbox(acToken)
+    print('Trying to get ' + str(os.path.join('/',path,file)))
     try:
         dbx.files_get_metadata(os.path.join('/',path,file))
         return True
@@ -43,9 +44,13 @@ def current_dbx_file_exists(acToken,file,path):
         
         
 dbxtoken = 'FQZNhbPIQmsAAAAAAAAMhMv5YG74Gz0Gd5AIp1sF0I2u1qEjtkOepaMziWyBfSVl'
-dbxfile = '2020-03-21-ecas-export.db'
+#dbxfile = '2020-03-21-ecas-export.db'
 localpath = '/tmp'
 remotepath = 'VerbrauchsKosten/ECAS'
+
+now = datetime.datetime.now()
+dbxfile = now.strftime("%Y-%m-%d") + "-ecas-export.db"
+#print(dbxfile)
 
 # build current file (YYYY-mm-dd-ecas-export.db) from date
 if current_dbx_file_exists(dbxtoken,dbxfile,remotepath):
