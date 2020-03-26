@@ -9,3 +9,4 @@ This will manage the meters of my photovoltaic stuff.
  - [X] Write VARTA CHARGE Power 15  min
  - [ ] Create overview in Grafana for Above
  - [ ] Handle exceptions
+ - [ ] Avoid unnecessary graphite updates
