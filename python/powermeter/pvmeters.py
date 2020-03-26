@@ -33,6 +33,15 @@ def cleanup(file,lpath):
     print(glob.glob(os.path.join(lpath,file)))
     print('Cleanup everything!')
 
+def current_dbx_file_exists(acToken,file,path):
+    dbx = dropbox.Dropbox(acToken)
+    print('Trying to get ' + str(os.path.join('/',path,file)))
+    try:
+        dbx.files_get_metadata(os.path.join('/',path,file))
+        return True
+    except:
+        return False
+
 def vartametrics(url,ghost,prefix='pv.varta'):
     # read from Storage
     with urllib.request.urlopen(url) as response: ## Add Exception Handler
@@ -61,6 +70,25 @@ def download_DBX_file(token,file,rpath,lpath):
     dbx = dropbox.Dropbox(token)
     dbx.files_download_to_file(l,r)
     #print(glob.glob(l))
+    
+def read_and_write_dbmetrics(path,file):
+    conn = sqlite3.connect(os.path.join(path,file))
+    c = conn.cursor()
+    sqoutput = c.execute('select _id, name from meter')
+    for s in sqoutput:
+        meterid = s[0]
+        metername = s[1].replace(" ","_")
+        print(meterid, metername)
+        c1 = conn.cursor()
+        for m in c1.execute('SELECT date,value from reading where meterid = ' + str(meterid)):
+            #print(m[0],m[1])
+            time = datetime.datetime.strptime(m[0], '%Y-%m-%dT%H:%M:%S').timestamp()
+            #print(time,type(time))
+            #mvalue = m[1].rstrip('.0')
+            #mvalue = 0 if mvalue == '' else mvalue
+            write_graphite('pv.test',time,m[1],metername,graphite_host)
+            print('pv.test',time,m[1],metername,graphite_host)
+    conn.close()
 
 def se_hourly(apikey,site_id,ghost,prefix='pv.solaredge.production'):
     timestamp = int(round(time.time()))
@@ -176,11 +204,20 @@ args = parser.parse_args()
 graphite_host = args.graphite_host
 time_pattern = '%Y-%m-%d %H:%M:%S'
 
+now = datetime.datetime.now()
+dbxfile = now.strftime("%Y-%m-%d") + "-ecas-export.db"
+
 ## main
 if args.mode == 1:
     vartametrics(args.vartaurl,graphite_host)
     se_hourly(args.apikey,args.site_id,graphite_host)
     se_daily(args.apikey,args.site_id,graphite_host)
+    if current_dbx_file_exists(args.dbxtoken,dbxfile,args.remotepath):
+        print('would download current file and continue')
+        download_DBX_file(args.dbxtoken,dbxfile,args.remotepath,'/tmp')
+        read_and_write_dbmetrics('/tmp',dbxfile)
+    else:
+        print('No current file!')
 elif args.mode == 2:
     se_hourly(args.apikey,args.site_id,graphite_host)
     se_daily(args.apikey,args.site_id,graphite_host)
