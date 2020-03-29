@@ -86,8 +86,8 @@ def read_and_write_dbmetrics(path,file):
             #print(time,type(time))
             #mvalue = m[1].rstrip('.0')
             #mvalue = 0 if mvalue == '' else mvalue
-            write_graphite('pv.test',time,m[1],metername,graphite_host)
-            print('pv.test',time,m[1],metername,graphite_host)
+            write_graphite('nergie',time,m[1],metername,graphite_host)
+            #print('nergie',time,m[1],metername,graphite_host)
     conn.close()
 
 def se_hourly(apikey,site_id,ghost,prefix='pv.solaredge.production'):
@@ -120,7 +120,7 @@ def se_daily(apikey,site_id,ghost,prefix='pv.solaredge.production'):
     write_graphite(prefix,timestamp,energy,'total',ghost)
     
 def solaredgemetrics():
-    print('SE')
+    #print('SE')
     timestamp = int(round(time.time()))
     energy = float('nan')
     power = 0
@@ -213,7 +213,7 @@ if args.mode == 1:
     se_hourly(args.apikey,args.site_id,graphite_host)
     se_daily(args.apikey,args.site_id,graphite_host)
     if current_dbx_file_exists(args.dbxtoken,dbxfile,args.remotepath):
-        print('would download current file and continue')
+        #print('would download current file and continue')
         download_DBX_file(args.dbxtoken,dbxfile,args.remotepath,'/tmp')
         read_and_write_dbmetrics('/tmp',dbxfile)
     else:
